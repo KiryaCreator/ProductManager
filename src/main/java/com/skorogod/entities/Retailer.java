@@ -1,11 +1,15 @@
 package com.skorogod.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -22,10 +26,20 @@ public class Retailer {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "retailer_product",
-            joinColumns = @JoinColumn(name = "retailer_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private Set<Product> retailerProducts;
+    @ManyToMany(mappedBy = "retailers")
+    @JsonIgnore
+    private Set<Product> products = new HashSet<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Retailer retailer = (Retailer) o;
+        return id != null && Objects.equals(id, retailer.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
